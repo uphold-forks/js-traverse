@@ -122,11 +122,12 @@ function walk (root, cb, immutable) {
         var state = {
             node : node,
             node_ : node_,
-            path : [].concat(path),
+            path : [].concat(path).map(key => key.toString()),
             parent : parents[parents.length - 1],
             parents : parents,
             key : path.slice(-1)[0],
             isRoot : path.length === 0,
+            isSymbol : typeof path.slice(-1)[0] === 'symbol',
             level : path.length,
             circular : null,
             update : function (x, stopHere) {
@@ -276,10 +277,11 @@ function copy (src) {
     else return src;
 }
 
-var objectKeys = Object.keys || function keys (obj) {
-    var res = [];
-    for (var key in obj) res.push(key)
-    return res;
+var objectKeys = function keys (obj) {
+    return [].concat(
+        Object.keys(obj),
+        Object.getOwnPropertySymbols(obj)
+    );
 };
 
 function toS (obj) { return Object.prototype.toString.call(obj) }
