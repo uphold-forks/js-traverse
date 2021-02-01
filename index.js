@@ -256,7 +256,7 @@ function copy (src) {
             dst = new String(src);
         }
         else if (Object.create && Object.getPrototypeOf) {
-            dst = Object.create(Object.getPrototypeOf(src));
+            dst = Object.create({});
         }
         else if (src.constructor === Object) {
             dst = {};
@@ -281,10 +281,22 @@ function copy (src) {
 }
 
 var objectKeys = function keys (obj) {
-    return [].concat(
+    const result = [].concat(
         Object.keys(obj),
         Object.getOwnPropertySymbols(obj)
     );
+
+    if (Object.getPrototypeOf(obj) && Object.getPrototypeOf(obj) !== Object.prototype) {
+        const getters = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(obj));
+
+        for (const name in getters) {
+            if (getters[name].get) {
+                result.push(name);
+            }
+        }
+    }
+
+    return result;
 };
 
 function toS (obj) { return Object.prototype.toString.call(obj) }
